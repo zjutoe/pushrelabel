@@ -1,4 +1,4 @@
-#!/usr/bin/env lua5.1
+#!/usr/bin/env lua
 
 dofile(arg[1])
 
@@ -32,6 +32,15 @@ function show_excess(e)
    end
 end
 
+function show_residcap(cf)
+   for u, l in pairs(cf) do
+      print(u)
+      for v, x in pairs(l) do
+	 print('', v, x)
+      end
+   end
+end
+
 show_cap(G)
 
 function mset(m, i, j, v)
@@ -49,8 +58,8 @@ e={}
 -- residual flow
 cf={}
 
-function init_preflow(c)
-   h['S'] = #c
+function init_preflow(c, size)
+   h['S'] = size
 
    for v, x in pairs(c.S) do      
       mset(f, 'S', v, x)
@@ -62,7 +71,7 @@ function init_preflow(c)
    end
 end
 
-init_preflow(G)
+init_preflow(G, 4)
 
 print("Height:")
 show_height(h)
@@ -70,7 +79,8 @@ print("Preflow:")
 show_flow(f)
 print("Excess:")
 show_excess(e)
-
+print("Residual Cap:")
+show_residcap(cf)
 
 function push(u, v)
    local temp = (e[u] < cf[u][v]) and e[u] or cf[u][v]
@@ -96,3 +106,24 @@ function relabel(c, u)
    h[u] = 1 + temp   
 end
 
+function maxflow()
+   for u, x in pairs(e) do
+      if x > 0 then		-- find an active vertex
+	 local need_relabel = false
+	 local pushed = false
+	 for v, y in pairs(cf[u]) do
+	    if y > 0 then
+	       if h[u] <= h[v] then 
+		  need_relabel = true 
+	       else
+		  push(u, v)
+		  pushed = true
+	       end
+	    end
+	 end
+	 if need_relabel and not pushed then
+	    relabel(c, u)
+	 end
+      end
+   end
+end
