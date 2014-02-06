@@ -1,5 +1,6 @@
 // copy from http://jqyblogger.blogspot.com/2012/06/sample-c-code-for-push-relabel-max-flow.html
 
+#include <climits>
 #include "Graph.h"
 
 
